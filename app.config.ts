@@ -20,7 +20,6 @@ export default ({ config: baseConfig }: ConfigContext): ExpoConfig => {
   const envAssetsPath = `./src/assets/app/${EXPO_PUBLIC_APP_ENV}`;
 
   const dynamicConfig: Partial<ExpoConfig> = {
-    name: isProduction ? (baseConfig.name as string) : `${baseConfig.name} (${EXPO_PUBLIC_APP_ENV})`,
     scheme: isProduction ? (baseConfig.scheme as string) : `${baseConfig.scheme}${EXPO_PUBLIC_APP_ENV}`,
     icon: `${envAssetsPath}/icon.png`,
     splash: {
