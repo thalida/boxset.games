@@ -1,0 +1,39 @@
+{
+  "expo": {
+    "owner": "thalida.com",
+    "name": "ShapeConnector",
+    "slug": "shapeconnector",
+    "scheme": "shapeconnector",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "automatic",
+    "ios": {
+      "buildNumber": "1.0.0",
+      "supportsTablet": true,
+    },
+    "android": {
+      "versionCode": 1,
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "static",
+    },
+    "plugins": [
+      "expo-router"
+    ],
+    "experiments": {
+      "typedRoutes": true
+    },
+    "extra": {
+      "eas": {
+        "projectId": "f6c005f5-b2e5-433d-ad98-33259677d3b0"
+      }
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/f6c005f5-b2e5-433d-ad98-33259677d3b0"
+    }
+  }
+}
