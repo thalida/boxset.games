@@ -1,7 +1,7 @@
 {
   "expo": {
     "owner": "thalida.com",
-    "name": "ShapeConnector",
+    "name": "shapeconnector",
     "slug": "shapeconnector",
     "scheme": "shapeconnector",
     "version": "1.0.0",
@@ -12,11 +12,11 @@
       "supportsTablet": true,
     },
     "android": {
-      "versionCode": 1,
+      "versionCode": 1
     },
     "web": {
       "bundler": "metro",
-      "output": "static",
+      "output": "static"
     },
     "plugins": [
       "expo-router"

@@ -17,12 +17,6 @@ export default ({ config: baseConfig }: ConfigContext): ExpoConfig => {
     ? baseAppIdentifier
     : `${baseAppIdentifier}.${EXPO_PUBLIC_APP_ENV}`;
 
-  const colors = {
-    [AppEnv.production]: "#4939FF",
-    [AppEnv.preview]: "#009087",
-    [AppEnv.development]: "#C99100",
-  };
-
   const envAssetsPath = `./src/assets/app/${EXPO_PUBLIC_APP_ENV}`;
 
   const dynamicConfig: Partial<ExpoConfig> = {
@@ -33,7 +27,7 @@ export default ({ config: baseConfig }: ConfigContext): ExpoConfig => {
       ...baseConfig.splash,
       image: `${envAssetsPath}/splash.png`,
       resizeMode: "contain",
-      backgroundColor: colors[EXPO_PUBLIC_APP_ENV],
+      backgroundColor: "#1B2036",
     },
     ios: {
       ...baseConfig.ios,
@@ -44,7 +38,7 @@ export default ({ config: baseConfig }: ConfigContext): ExpoConfig => {
       package: appIdentifier,
       adaptiveIcon: {
         foregroundImage: `${envAssetsPath}/adaptive-icon.png`,
-        backgroundColor: colors[EXPO_PUBLIC_APP_ENV],
+        backgroundColor: "#1B2036",
       },
       // googleServicesFile:
       //   process.env.GOOGLE_SERVICES_JSON || "./google-services.json",
