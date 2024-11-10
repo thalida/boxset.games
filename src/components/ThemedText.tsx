@@ -1,4 +1,4 @@
-import { Text, type TextProps, StyleSheet } from 'react-native';
+import { Text, type TextProps, StyleSheet, Platform } from 'react-native';
 
 import { useThemeColor } from '@/hooks/useThemeColor';
 
@@ -20,7 +20,14 @@ export function ThemedText({
   return (
     <Text
       style={[
-        { color },
+        {
+          color,
+          fontFamily: Platform.select({
+            android: 'Outfit_400Regular',
+            ios: 'Outfit-Regular',
+            web: 'Outfit',
+          }),
+        },
         type === 'default' ? styles.default : undefined,
         type === 'title' ? styles.title : undefined,
         type === 'defaultSemiBold' ? styles.defaultSemiBold : undefined,
