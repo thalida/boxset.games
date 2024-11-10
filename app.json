@@ -1,7 +1,7 @@
 {
   "expo": {
     "owner": "thalida.com",
-    "name": "shapeconnector",
+    "name": "Shape Connector",
     "slug": "shapeconnector",
     "scheme": "shapeconnector",
     "version": "1.0.0",
@@ -9,7 +9,7 @@
     "userInterfaceStyle": "automatic",
     "ios": {
       "buildNumber": "1.0.0",
-      "supportsTablet": true,
+      "supportsTablet": true
     },
     "android": {
       "versionCode": 1
