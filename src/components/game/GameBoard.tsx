@@ -3,7 +3,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ThemedView } from '../ThemedView';
 import { Shape } from './Shape';
-import { IGame, ShapeColor, ShapeType } from './enums';
+import { IGame, NodeState, ShapeColor, ShapeType } from './enums';
 import * as gameUtils from './utils';
 import { useMemo, useState } from 'react';
 
@@ -19,7 +19,7 @@ export function GameBoard(props: GameBoardProps) {
   }
 
   return (
-      <ThemedView style={{ flex: 1, height: "100%", backgroundColor: "#fff" }}>
+      <ThemedView style={{ flex: 1, height: "100%", backgroundColor: "#1B2036" }}>
         <SafeAreaView>
 
           <Button title="Reset" onPress={handleReset} />
@@ -27,7 +27,7 @@ export function GameBoard(props: GameBoardProps) {
           <View style={{ flexDirection: "row", gap: 4 }}>
             {startNode && (
               <Shape
-                state="default"
+                state={NodeState.Selected}
                 type={startNode.shape}
                 color={startNode.color}
                 size={32}
@@ -40,7 +40,7 @@ export function GameBoard(props: GameBoardProps) {
 
             {endNode && (
               <Shape
-                state="default"
+                state={NodeState.Selected}
                 type={endNode.shape}
                 color={endNode.color}
                 size={32}
@@ -48,13 +48,25 @@ export function GameBoard(props: GameBoardProps) {
             )}
           </View>
 
-          <View style={{ flexDirection: "column", gap: 12, margin: 12 }}>
+          <View style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: 12,
+              marginHorizontal: "auto",
+            }}>
             {game.board.map((row, y) => (
-              <View key={y} style={{ flexDirection: "row", gap: 12 }}>
+              <View
+              key={y}
+              style={{
+                display: "flex",
+                width: "100%",
+                flexDirection: "row",
+                gap: 12,
+              }}>
                 {row.map((node, x) => (
                   <Shape
-                    key={x}
-                    state="default"
+                    key={`${x},${y}`}
+                    state={NodeState.Default}
                     type={node.shape}
                     color={node.color}
                     size={32}

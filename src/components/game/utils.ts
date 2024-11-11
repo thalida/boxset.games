@@ -1,4 +1,4 @@
-import { Direction, IGame, INode, INodeCoords, IPuzzle, ShapeColor, ShapeType, TBoard, TPuzzle } from "./enums";
+import { Direction, IGame, INode, INodeCoords, IPuzzle, ShapeColor, ShapeType, TBoard, TFlatBoard, TPuzzle } from "./enums";
 
 function getRandomNumber(min: number, max: number): number {
   return Math.floor(Math.random() * (max - min + 1) + min);
@@ -133,26 +133,24 @@ function generatePuzzle(boardSize: number, pathSize: number): TPuzzle {
 
 export function generateBoard(boardSize: number, puzzle: TPuzzle): TBoard {
   const board: Array<INode[]> = [];
+
   for (let y = 0; y < boardSize; y+=1) {
     const row: INode[] = [];
     for (let x = 0; x < boardSize; x+=1) {
       const puzzleNode = puzzle.find((p) => p.x === x && p.y === y);
-      if (puzzleNode) {
-        row.push(puzzleNode);
-      } else {
-        row.push({
-          x,
-          y,
-          color: getRandomColor(),
-          shape: getRandomShape(),
-        });
+      const node = puzzleNode ? puzzleNode :  {
+        x,
+        y,
+        color: getRandomColor(),
+        shape: getRandomShape(),
       }
+      row.push(node);
     }
 
     board.push(row);
   }
 
-  return board;
+  return board
 }
 
 

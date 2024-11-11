@@ -19,6 +19,12 @@ export enum Direction {
   Right = "+x",
 }
 
+export enum NodeState {
+  Default = "default",
+  Selected = "selected",
+  Connected = "connected",
+}
+
 export interface IGame {
   board: TBoard;
   puzzle: INode[];
