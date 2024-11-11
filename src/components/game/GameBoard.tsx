@@ -10,12 +10,12 @@ import { useMemo, useState } from 'react';
 export type GameBoardProps = {};
 
 export function GameBoard(props: GameBoardProps) {
-  const [game, setGame] = useState<IGame>(() => gameUtils.generateGame(8, 8));
+  const [game, setGame] = useState<IGame>(() => gameUtils.generateGame(8, 16));
   const startNode = useMemo(() => game.puzzle[0], [game.puzzle]);
   const endNode = useMemo(() => game.puzzle[game.puzzle.length - 1], [game.puzzle]);
 
   function handleReset() {
-    setGame(gameUtils.generateGame(8, 8));
+    setGame(gameUtils.generateGame(8, 16));
   }
 
   return (
@@ -34,6 +34,10 @@ export function GameBoard(props: GameBoardProps) {
               />
             )}
 
+            <Text>
+                {game.puzzle.length - 2}
+            </Text>
+
             {endNode && (
               <Shape
                 state="default"
@@ -42,20 +46,6 @@ export function GameBoard(props: GameBoardProps) {
                 size={32}
               />
             )}
-          </View>
-
-          <View style={{ flexDirection: "row", marginBottom: 32, gap: 4 }}>
-            {game.puzzle.map((node, i) => (
-              <View key={i} style={{ flexDirection: "column" }}>
-                <Shape
-                  state="default"
-                  type={node.shape}
-                  color={node.color}
-                  size={32}
-                />
-                <Text>{node.x}, {node.y}</Text>
-              </View>
-            ))}
           </View>
 
           <View style={{ flexDirection: "column", gap: 12, margin: 12 }}>

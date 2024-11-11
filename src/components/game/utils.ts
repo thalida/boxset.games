@@ -32,6 +32,7 @@ function getRandomShape(exclude?: ShapeType[]): ShapeType {
   return shapes[getRandomNumber(0, shapes.length - 1)];
 }
 
+
 function generatePuzzleCoords(
   boardSize: number,
   pathSize: number,
@@ -73,9 +74,12 @@ function generatePuzzleCoords(
   return generatePuzzleCoords(boardSize, pathSize, path, visited);
 }
 
+
 function generatePuzzle(boardSize: number, pathSize: number): TPuzzle {
   const coords = generatePuzzleCoords(boardSize, pathSize, [], []);
   const puzzle: TPuzzle = [];
+
+  const MAX_SAME_CHAIN = 3;
 
   for (let i = 0; i < coords.length; i+=1) {
     if (i === 0) {
@@ -88,7 +92,9 @@ function generatePuzzle(boardSize: number, pathSize: number): TPuzzle {
       continue;
     }
 
-    const shouldChangeColor = getRandomBoolean();
+    const lastNNodes = puzzle.slice(-MAX_SAME_CHAIN);
+    const sameColor = lastNNodes.every((n) => n.color === lastNNodes[0].color);
+    const sameShape = lastNNodes.every((n) => n.shape === lastNNodes[0].shape);
 
     const lastColor = puzzle[i - 1].color;
     const lastShape = puzzle[i - 1].shape;
@@ -96,13 +102,23 @@ function generatePuzzle(boardSize: number, pathSize: number): TPuzzle {
     const excludeColors = [lastColor];
     const excludeShapes = [lastShape];
 
+    let color = lastColor;
+    let shape = lastShape;
+
     if (i === pathSize - 1) {
       excludeColors.push(puzzle[0].color);
       excludeShapes.push(puzzle[0].shape);
     }
 
-    const color = shouldChangeColor ? getRandomColor(excludeColors) : lastColor;
-    const shape = !shouldChangeColor ? getRandomShape(excludeShapes) : lastShape;
+    if (sameColor) {
+      color = getRandomColor(excludeColors);
+    } else if (sameShape) {
+      shape = getRandomShape(excludeShapes);
+    } else {
+      const keepColor = getRandomBoolean();
+      color = keepColor ? color : getRandomColor(excludeColors);
+      shape = !keepColor ? shape : getRandomShape(excludeShapes);
+    }
 
     puzzle.push({
       x: coords[i].x,
