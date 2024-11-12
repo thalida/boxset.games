@@ -45,7 +45,7 @@ export function Shape(props: ShapeProps) {
 
   const strokeOpacity = useMemo(() => {
     switch (props.state) {
-      case NodeState.Default: return 0.3;
+      case NodeState.Default: return 0;
       case NodeState.Selected: return 1;
       case NodeState.Connected: return 1;
     }

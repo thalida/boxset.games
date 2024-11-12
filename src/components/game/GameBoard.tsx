@@ -7,10 +7,12 @@ import { Shape } from './Shape';
 import { IGame, NodeState, ShapeColor, ShapeType } from './enums';
 import * as gameUtils from './utils';
 import React, { useLayoutEffect, useMemo, useRef, useState } from 'react';
-import { runOnJS, useSharedValue } from 'react-native-reanimated';
+import Animated, { runOnJS, useAnimatedProps, useAnimatedStyle, useSharedValue } from 'react-native-reanimated';
 import Svg, { Line } from 'react-native-svg';
 
 export type GameBoardProps = {};
+
+const AnimatedSVGLine = Animated.createAnimatedComponent(Line);
 
 export function GameBoard(props: GameBoardProps) {
   const safeAreaInsets = useSafeAreaInsets();
@@ -32,12 +34,42 @@ export function GameBoard(props: GameBoardProps) {
   }
 
   const [selectedNode, setSelectedNode] = useState<{ x: number, y: number }>({ x: -1, y: -1 });
-  const [linePos, setLinePos] = useState<{x1: number, y1: number, x2: number, y2: number}>({x1: 0, y1: 0, x2: 0, y2: 0});
+  const linePos = useSharedValue<{x1: number, y1: number, x2: number, y2: number}>({x1: 0, y1: 0, x2: 0, y2: 0});
+  const animatedProps = useAnimatedProps(() => {
+    return {
+      x1: linePos.value.x1,
+      y1: linePos.value.y1,
+      x2: linePos.value.x2,
+      y2: linePos.value.y2,
+    };
+  });
+  // const animatedStyles = useAnimatedStyle(() => {
+  //   console.log(linePos.value);
+  //   return linePos.value;
+  //   // const rise = linePos.value.y2 - linePos.value.y1;
+  //   // const run = linePos.value.x2 - linePos.value.x1;
+  //   // const slope = run === 0 ? 0 : rise / run;
+  //   // const DEGREES = 57.2957795;
+  //   // const width = Math.sqrt((rise ** 2) +( run ** 2));
+  //   // const rotation = Math.atan(slope) * DEGREES;
 
+  //   // console.log(slope, width, rotation);
+
+  //   // return {
+  //   //   position: "absolute",
+  //   //   top: linePos.value.y1,
+  //   //   left: linePos.value.x1,
+  //   //   backgroundColor: "white",
+  //   //   width,
+  //   //   height: 2,
+  //   //   transform: [
+  //   //     { rotate: `${rotation}deg` },
+  //   //   ],
+  //   //   transformOrigin: "0 0",
+  //   // };
+  // });
 
   function handleOnLayout() {
-    console.log("Layout");
-
     for (const [key, node] of Object.entries(nodesRef.current)) {
       if (node) {
         node.measure((x, y, width, height, pageX, pageY) => {
@@ -78,126 +110,127 @@ export function GameBoard(props: GameBoardProps) {
     .onStart((e) => {
       const nodePos = nodePositions[`${selectedNode.x},${selectedNode.y}`];
 
-      runOnJS(setLinePos)({
+      linePos.value = {
         x1: (nodePos.px1 + nodePos.px2) / 2,
         y1: (nodePos.py1 + nodePos.py2) / 2,
         x2: (nodePos.px1 + nodePos.px2) / 2,
         y2: (nodePos.py1 + nodePos.py2) / 2,
-      });
+      };
     })
     .onUpdate((e) => {
       const nodePos = nodePositions[`${selectedNode.x},${selectedNode.y}`];
 
-      runOnJS(setLinePos)({
+      linePos.value = {
         x1: (nodePos.px1 + nodePos.px2) / 2,
         y1: (nodePos.py1 + nodePos.py2) / 2,
         x2: e.absoluteX,
         y2: e.absoluteY,
-      });
-
-      console.log(linePos);
+      };
     })
     .onEnd(() => {
-      runOnJS(setLinePos)({
-        x1: -1,
-        y1: -1,
-        x2: -1,
-        y2: -1,
-      });
+      linePos.value = {
+        x1: 0,
+        y1: 0,
+        x2: 0,
+        y2: 0,
+      };
     });
 
   const gestures = Gesture.Exclusive(tapGesture, dragGesture);
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-        <ThemedView style={{ flex: 1, height: "100%", backgroundColor: "#1B2036" }}>
-          <SafeAreaView>
+      <SafeAreaView style={{
+        flex: 1,
+        width: "100%",
+        height: "100%",
+        backgroundColor: "#1B2036"
+      }}>
+        <Button title="Reset" onPress={handleReset} />
 
-            <Button title="Reset" onPress={handleReset} />
+        <View style={{ flexDirection: "row", gap: 4 }}>
+          {startNode && (
+            <Shape
+              state={NodeState.Selected}
+              type={startNode.shape}
+              color={startNode.color}
+              size={NODE_SIZE}
+            />
+          )}
 
-            <View style={{ flexDirection: "row", gap: 4 }}>
-              {startNode && (
-                <Shape
-                  state={NodeState.Selected}
-                  type={startNode.shape}
-                  color={startNode.color}
-                  size={NODE_SIZE}
-                />
-              )}
+          <Text>
+              {game.puzzle.length - 2}
+          </Text>
 
-              <Text>
-                  {game.puzzle.length - 2}
-              </Text>
+          {endNode && (
+            <Shape
+              state={NodeState.Selected}
+              type={endNode.shape}
+              color={endNode.color}
+              size={NODE_SIZE}
+            />
+          )}
+        </View>
 
-              {endNode && (
-                <Shape
-                  state={NodeState.Selected}
-                  type={endNode.shape}
-                  color={endNode.color}
-                  size={NODE_SIZE}
-                />
-              )}
-            </View>
-
-            {/* Game Board */}
-            <GestureDetector gesture={gestures}>
+        {/* Game Board */}
+        <GestureDetector gesture={gestures}>
+          <View
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: NODE_PADDING,
+              marginHorizontal: "auto",
+            }}
+            onLayout={handleOnLayout}
+          >
+            {game.board.map((row, y) => (
               <View
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: NODE_PADDING,
-                  marginHorizontal: "auto",
-                }}
-                onLayout={handleOnLayout}
-              >
-                {game.board.map((row, y) => (
+              key={y}
+              style={{
+                display: "flex",
+                width: "100%",
+                flexDirection: "row",
+                gap: NODE_PADDING,
+              }}>
+                {row.map((node, x) => (
                   <View
-                  key={y}
-                  style={{
-                    display: "flex",
-                    width: "100%",
-                    flexDirection: "row",
-                    gap: NODE_PADDING,
-                  }}>
-                    {row.map((node, x) => (
-                      <View
-                        key={`${x},${y}`}
-                        ref={(el) => {
-                          nodesRef.current[`${x},${y}`] = el;
-                        }}
-                      >
-                        <Shape
-                          state={selectedNode.x === x && selectedNode.y === y ? NodeState.Selected : NodeState.Default}
-                          type={node.shape}
-                          color={node.color}
-                          size={NODE_SIZE}
-                        />
-                      </View>
-                    ))}
+                    key={`${x},${y}`}
+                    ref={(el) => {
+                      nodesRef.current[`${x},${y}`] = el;
+                    }}
+                  >
+                    <Shape
+                      state={selectedNode.x === x && selectedNode.y === y ? NodeState.Selected : NodeState.Default}
+                      type={node.shape}
+                      color={node.color}
+                      size={NODE_SIZE}
+                    />
                   </View>
                 ))}
               </View>
-            </GestureDetector>
+            ))}
+          </View>
+        </GestureDetector>
+      </SafeAreaView>
 
-            {/* Line */}
-            <Svg style={{
-              position: "absolute",
-              top: 0,
-              left: 0,
-              // backgroundColor: "red",
-            }}>
-              <Line
-                x1={linePos.x1}
-                y1={linePos.y1}
-                x2={linePos.x2}
-                y2={linePos.y2}
-                stroke="white"
-                strokeWidth={4}
-              />
-            </Svg>
-
-          </SafeAreaView>
-        </ThemedView>
+        {/* Line */}
+        <Svg style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          width: "100%",
+          height: "100%",
+        }}>
+          <AnimatedSVGLine
+            animatedProps={animatedProps}
+            x1={linePos.value.x1}
+            y1={linePos.value.y1}
+            x2={linePos.value.x2}
+            y2={linePos.value.y2}
+            stroke="white"
+            strokeWidth={4}
+          />
+        </Svg>
     </GestureHandlerRootView>
     );
 }
