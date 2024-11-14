@@ -166,3 +166,35 @@ export function generateGame(boardSize: number, pathSize: number): IGame {
     puzzle,
   };
 }
+
+export function isValidMove(puzzle: TPuzzle, path: Array<INode>, move: INode) {
+  "worklet";
+
+  if (path.length === 0) {
+    return move.shape === puzzle[0].shape && move.color === puzzle[0].color;
+  }
+
+  const lastNode = path[path.length - 1];
+
+  const isMatching = move.shape === lastNode.shape || move.color === lastNode.color;
+  const isNotVisited = !path.find((p) => p.x === move.x && p.y === move.y);
+  const isNeighbour = Math.abs(move.x - lastNode.x) + Math.abs(move.y - lastNode.y) === 1;
+
+  return isMatching && isNotVisited && isNeighbour;
+}
+
+export function isSameNode(node1: INode, node2: INode) {
+  "worklet";
+
+  if (!node1 || !node2) {
+    return false;
+  }
+
+  return node1.x === node2.x && node1.y === node2.y;
+}
+
+export function isNodeInPath(path: Array<INode>, node: INode) {
+  "worklet";
+
+  return !!path.find((p) => isSameNode(p, node));
+}

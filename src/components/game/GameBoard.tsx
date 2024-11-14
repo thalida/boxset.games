@@ -4,7 +4,7 @@ import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-g
 
 import { ThemedView } from '../ThemedView';
 import { Shape } from './Shape';
-import { IGame, INodeCoords, NodeState, ShapeColor, ShapeType } from './enums';
+import { IGame, INode, INodeCoords, NodeState, ShapeColor, ShapeType } from './enums';
 import * as gameUtils from './utils';
 import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import Animated, { runOnJS, useAnimatedProps, useAnimatedReaction, useAnimatedStyle, useSharedValue } from 'react-native-reanimated';
@@ -33,8 +33,9 @@ export function GameBoard(props: GameBoardProps) {
     setGame(gameUtils.generateGame(BOARD_SIZE, PATH_SIZE));
   }
 
-  const activeNode = useSharedValue<INodeCoords | null>(null);
+  const activeNode = useSharedValue<INode | null>(null);
   const linePos = useSharedValue<{x1: number, y1: number, x2: number, y2: number}>({x1: 0, y1: 0, x2: 0, y2: 0});
+  const activeNodePath = useSharedValue<Array<INode>>([]);
   const animatedLineProps = useAnimatedProps(() => {
     return {
       x1: linePos.value.x1,
@@ -43,7 +44,8 @@ export function GameBoard(props: GameBoardProps) {
       y2: linePos.value.y2,
     };
   });
-  const [selectedNode, setSelectedNode] = useState<INodeCoords | null>(null);
+  const [selectedNode, setSelectedNode] = useState<INode | null>(null);
+  const [selectedPath, setSelectedPath] = useState<Array<INode>>([]);
 
 
   function handleOnLayout() {
@@ -64,20 +66,20 @@ export function GameBoard(props: GameBoardProps) {
     }
   }
 
-  function findNearestNode(pos: INodeCoords): INodeCoords | null {
+  function findNearestNode(pos: INodeCoords): INode | null {
     "worklet";
 
-    let nearestNode: INodeCoords | null = null;
+    let nearestNodeCoords: INodeCoords | null = null;
 
     for (const [key, { px1, py1, px2, py2 }] of Object.entries(nodePositions)) {
       if (pos.x >= px1 && pos.x <= px2 && pos.y >= py1 && pos.y <= py2) {
         const nodeCoords = key.split(",").map((n) => parseInt(n, 10));
-        nearestNode = { x: nodeCoords[0], y: nodeCoords[1] };
+        nearestNodeCoords = { x: nodeCoords[0], y: nodeCoords[1] };
         break;
       }
     }
 
-    return nearestNode;
+    return nearestNodeCoords ? game.board[nearestNodeCoords.y][nearestNodeCoords.x] : null;
   }
 
   useAnimatedReaction(() => activeNode.value, (value, prevValue) => {
@@ -85,11 +87,11 @@ export function GameBoard(props: GameBoardProps) {
       return;
     }
 
-    if (value === null) {
-      return;
-    }
-
     runOnJS(setSelectedNode)(value);
+  });
+
+  useAnimatedReaction(() => activeNodePath.value, (value, prevValue) => {
+    runOnJS(setSelectedPath)(value);
   });
 
 
@@ -121,7 +123,27 @@ export function GameBoard(props: GameBoardProps) {
         return;
       }
 
+      const lastMove = activeNodePath.value[activeNodePath.value.length - 1];
+      const isSameNode = gameUtils.isSameNode(nearestNode, lastMove);
+
+      console.log("isSameNode", isSameNode);
+
+      if (isSameNode) {
+        activeNodePath.value.pop();
+        activeNode.value = activeNodePath.value[activeNodePath.value.length - 1] || null;
+        return;
+      }
+
+      const isValidMove = gameUtils.isValidMove(game.puzzle, activeNodePath.value, nearestNode);
+      console.log("isValidMove", isValidMove, activeNodePath.value, nearestNode);
+
+      if (!isValidMove) {
+        activeNode.value = null;
+        return;
+      }
+
       activeNode.value = nearestNode;
+      activeNodePath.value.push(nearestNode);
 
       const nodePos = nodePositions[`${activeNode.value.x},${activeNode.value.y}`];
 
@@ -143,14 +165,27 @@ export function GameBoard(props: GameBoardProps) {
         return;
       }
 
+      // Draw line
       const nodePos = nodePositions[`${activeNode.value.x},${activeNode.value.y}`];
-
       linePos.value = {
         x1: (nodePos.px1 + nodePos.px2) / 2,
         y1: (nodePos.py1 + nodePos.py2) / 2,
         x2: e.absoluteX,
         y2: e.absoluteY,
       };
+
+      const nearestNode = findNearestNode({ x: e.absoluteX, y: e.absoluteY });
+      if (nearestNode === null) {
+        return;
+      }
+
+      const isValidMove = gameUtils.isValidMove(game.puzzle, activeNodePath.value, nearestNode);
+      if (!isValidMove) {
+        return;
+      }
+
+      activeNode.value = nearestNode;
+      activeNodePath.value.push(nearestNode);
     })
     .onEnd(() => {
       linePos.value = {
@@ -247,7 +282,7 @@ export function GameBoard(props: GameBoardProps) {
                     }}
                   >
                     <Shape
-                      state={selectedNode && selectedNode.x === x && selectedNode.y === y ? NodeState.Selected : node.state}
+                      state={gameUtils.isNodeInPath(selectedPath, node) ? NodeState.Connected : NodeState.Default}
                       type={node.shape}
                       color={node.color}
                       size={NODE_SIZE}
