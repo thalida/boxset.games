@@ -1,22 +1,17 @@
 import { Text, type TextProps, StyleSheet, Platform, View, Button, Pressable } from 'react-native';
-import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { LinearGradient } from 'expo-linear-gradient';
 
-import { ThemedView } from '../ThemedView';
 import { Shape } from './Shape';
-import { IGame, INode, INodeCoords, NodeState, ShapeColor, ShapeType } from './enums';
+import { IGame, INode, INodeCoords } from './types';
+import { NodeState, ShapeColor, ShapeType } from './constants';
 import * as gameUtils from './utils';
-import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
-import Animated, { runOnJS, useAnimatedProps, useAnimatedReaction, useAnimatedStyle, useSharedValue } from 'react-native-reanimated';
-import Svg, { Line } from 'react-native-svg';
+import React, { useMemo, useRef, useState } from 'react';
 
 export type GameBoardProps = {};
 
-const AnimatedSVGLine = Animated.createAnimatedComponent(Line);
 
 export function GameBoard(props: GameBoardProps) {
-  const safeAreaInsets = useSafeAreaInsets();
-
   const BOARD_SIZE = 8;
   const PATH_SIZE = 16;
   const NODE_SIZE = 28;
@@ -37,7 +32,9 @@ export function GameBoard(props: GameBoardProps) {
 
     if (isNodeInPath) {
       const nodeIndex = path.findIndex((p) => p.x === node.x && p.y === node.y);
-      setPath(path.slice(0, nodeIndex));
+      const isLastNode = nodeIndex === path.length - 1;
+      const goBackTo = isLastNode ? nodeIndex : nodeIndex + 1;
+      setPath(path.slice(0, goBackTo));
       return;
     }
 
@@ -63,6 +60,16 @@ export function GameBoard(props: GameBoardProps) {
     }
 
     return NodeState.Default;
+  }
+
+  function getNodeLineStyle(node1: INode, node2: INode) {
+    const node1Index = gameUtils.nodePathIndex(path, node1);
+    const node2Index = gameUtils.nodePathIndex(path, node2);
+
+    const foundNodes = node1Index !== -1 && node2Index !== -1;
+    const isAdjacent = Math.abs(node1Index - node2Index) === 1;
+
+    return foundNodes && isAdjacent ? {opacity: 1} : {opacity: 0};
   }
 
   return (
@@ -121,7 +128,7 @@ export function GameBoard(props: GameBoardProps) {
                   key={`${x},${y}`}
                   style={{
                     flexDirection: "column",
-                    alignItems: "start",
+                    alignItems: "flex-start",
                   }}
                 >
                   <View style={{
@@ -137,22 +144,31 @@ export function GameBoard(props: GameBoardProps) {
                       />
                     </Pressable>
                     {x < row.length - 1 && (
-                      <View style={{
-                        width: NODE_PADDING,
-                        height: 4,
-                        backgroundColor: "#000",
-                        borderRadius: 2,
-                      }} />
+                      <LinearGradient
+                        colors={[node.color, row[x + 1].color]}
+                        start={{ x: 0, y: 0.5 }}
+                        end={{ x: 1, y: 0.5 }}
+                        style={{
+                          width: NODE_PADDING,
+                          height: 4,
+                          borderRadius: 2,
+                          ...getNodeLineStyle(node, row[x + 1]),
+                        }}
+                      />
                     )}
                   </View>
                   {y < game.board.length - 1 && (
-                    <View style={{
-                      width: 4,
-                      height: NODE_PADDING,
-                      backgroundColor: "#000",
-                      borderRadius: 2,
-                      marginLeft: NODE_SIZE / 2 - 2,
-                    }} /> )}
+                    <LinearGradient
+                      colors={[node.color, game.board[y + 1][x].color]}
+                      style={{
+                        width: 4,
+                        height: NODE_PADDING,
+                        borderRadius: 2,
+                        marginLeft: NODE_SIZE / 2 - 2,
+                        ...getNodeLineStyle(node, game.board[y + 1][x]),
+                      }}
+                    />
+                    )}
                 </View>
               ))}
             </View>

@@ -1,4 +1,5 @@
-import { Direction, IGame, INode, INodeCoords, NodeState, ShapeColor, ShapeType, TBoard, TPuzzle } from "./enums";
+import { IGame, INode, INodeCoords, TBoard, TPuzzle } from "./types";
+import { NodeState, ShapeColor, ShapeType } from "./constants";
 
 function getRandomNumber(min: number, max: number): number {
   return Math.floor(Math.random() * (max - min + 1) + min);
@@ -191,4 +192,8 @@ export function isSameNode(node1: INode, node2: INode) {
 
 export function isNodeInPath(path: Array<INode>, node: INode) {
   return !!path.find((p) => isSameNode(p, node));
+}
+
+export function nodePathIndex(path: Array<INode>, node: INode) {
+  return path.findIndex((p) => isSameNode(p, node));
 }

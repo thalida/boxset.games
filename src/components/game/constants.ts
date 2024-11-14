@@ -25,21 +25,10 @@ export enum NodeState {
   Connected = "connected",
 }
 
-export interface IGame {
-  board: TBoard;
-  puzzle: INode[];
-}
-
-export type TBoard = Array<Array<INode>>;
-export type TPuzzle = Array<INode>;
-
-export interface INodeCoords {
-  x: number;
-  y: number;
-}
-
-export interface INode extends INodeCoords {
-  shape: ShapeType;
-  color: ShapeColor;
-  state: NodeState;
-}
+export const SELECTED_COLOR = "#FFFBDB";
+export const SHAPE_COLORS = {
+  [ShapeColor.Red]: "#D40004",
+  [ShapeColor.Green]: "#00D400",
+  [ShapeColor.Blue]: "#006AD4",
+  [ShapeColor.Yellow]: "#D4AA00",
+};

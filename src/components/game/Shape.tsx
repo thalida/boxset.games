@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
-import { Text, type TextProps, StyleSheet, Platform, View } from 'react-native';
+import { StyleSheet } from 'react-native';
 import  Svg, { Circle, G, Path } from 'react-native-svg';
-import { NodeState, ShapeColor, ShapeType } from './enums';
+import { NodeState, SELECTED_COLOR, SHAPE_COLORS, ShapeColor, ShapeType } from './constants';
 
 export type ShapeProps = {
   state: NodeState;
@@ -14,14 +14,6 @@ export function Shape(props: ShapeProps) {
   const BASE_SIZE = 80;
   const size = props.size || BASE_SIZE;
   const scale = size / BASE_SIZE;
-
-  const SELECTED_COLOR = "#FFFBDB";
-  const SHAPE_COLORS = {
-    [ShapeColor.Red]: "#D40004",
-    [ShapeColor.Green]: "#00D400",
-    [ShapeColor.Blue]: "#006AD4",
-    [ShapeColor.Yellow]: "#D4AA00",
-  };
 
   const fill = useMemo(() => {
     return SHAPE_COLORS[props.color];
