@@ -13,7 +13,7 @@ export type GameBoardProps = {};
 
 export function GameBoard(props: GameBoardProps) {
   const BOARD_SIZE = 8;
-  const PATH_SIZE = 16;
+  const PATH_SIZE = 4;
   const NODE_SIZE = 28;
   const NODE_PADDING = 16;
 
@@ -22,8 +22,12 @@ export function GameBoard(props: GameBoardProps) {
   const endNode = useMemo(() => game.puzzle[game.puzzle.length - 1], [game.puzzle]);
 
   const [path, setPath] = useState<Array<INode>>([]);
+  const numRemainingMoves = useMemo(() => {
+    return path.length > 0 ? game.puzzle.length - path.length : game.puzzle.length - 1;
+  }, [game.puzzle, path]);
 
   function handleReset() {
+    setPath([]);
     setGame(gameUtils.generateGame(BOARD_SIZE, PATH_SIZE));
   }
 
@@ -69,7 +73,7 @@ export function GameBoard(props: GameBoardProps) {
     const foundNodes = node1Index !== -1 && node2Index !== -1;
     const isAdjacent = Math.abs(node1Index - node2Index) === 1;
 
-    return foundNodes && isAdjacent ? {opacity: 1} : {opacity: 0};
+    return foundNodes && isAdjacent ?  { opacity: 1 } : { opacity: 0 };
   }
 
   return (
@@ -81,6 +85,15 @@ export function GameBoard(props: GameBoardProps) {
       }}>
         <Button title="Reset" onPress={handleReset} />
 
+        {/* { game.puzzle.map((node, index) => (
+            <Shape
+              state={NodeState.Default}
+              type={node.shape}
+              color={node.color}
+              size={NODE_SIZE}
+            />
+      ))} */}
+
         <View style={{ flexDirection: "row", gap: 4 }}>
           {startNode && (
             <Shape
@@ -91,8 +104,8 @@ export function GameBoard(props: GameBoardProps) {
             />
           )}
 
-          <Text>
-              {game.puzzle.length - 2}
+          <Text style={{ color: "#fff" }}>
+              {numRemainingMoves}
           </Text>
 
           {endNode && (

@@ -169,6 +169,10 @@ export function generateGame(boardSize: number, pathSize: number): IGame {
 }
 
 export function isValidMove(puzzle: TPuzzle, path: Array<INode>, move: INode) {
+  if (path.length === puzzle.length) {
+    return false;
+  }
+
   if (path.length === 0) {
     return move.shape === puzzle[0].shape && move.color === puzzle[0].color;
   }
