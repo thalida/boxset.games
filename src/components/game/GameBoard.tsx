@@ -4,10 +4,10 @@ import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-g
 
 import { ThemedView } from '../ThemedView';
 import { Shape } from './Shape';
-import { IGame, NodeState, ShapeColor, ShapeType } from './enums';
+import { IGame, INodeCoords, NodeState, ShapeColor, ShapeType } from './enums';
 import * as gameUtils from './utils';
-import React, { useLayoutEffect, useMemo, useRef, useState } from 'react';
-import Animated, { runOnJS, useAnimatedProps, useAnimatedStyle, useSharedValue } from 'react-native-reanimated';
+import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import Animated, { runOnJS, useAnimatedProps, useAnimatedReaction, useAnimatedStyle, useSharedValue } from 'react-native-reanimated';
 import Svg, { Line } from 'react-native-svg';
 
 export type GameBoardProps = {};
@@ -19,8 +19,8 @@ export function GameBoard(props: GameBoardProps) {
 
   const BOARD_SIZE = 8;
   const PATH_SIZE = 16;
-  const NODE_SIZE = 32;
-  const NODE_PADDING = 12;
+  const NODE_SIZE = 28;
+  const NODE_PADDING = 16;
 
   const [game, setGame] = useState<IGame>(() => gameUtils.generateGame(BOARD_SIZE, PATH_SIZE));
   const startNode = useMemo(() => game.puzzle[0], [game.puzzle]);
@@ -33,9 +33,9 @@ export function GameBoard(props: GameBoardProps) {
     setGame(gameUtils.generateGame(BOARD_SIZE, PATH_SIZE));
   }
 
-  const [selectedNode, setSelectedNode] = useState<{ x: number, y: number }>({ x: -1, y: -1 });
+  const activeNode = useSharedValue<INodeCoords | null>(null);
   const linePos = useSharedValue<{x1: number, y1: number, x2: number, y2: number}>({x1: 0, y1: 0, x2: 0, y2: 0});
-  const animatedProps = useAnimatedProps(() => {
+  const animatedLineProps = useAnimatedProps(() => {
     return {
       x1: linePos.value.x1,
       y1: linePos.value.y1,
@@ -43,31 +43,8 @@ export function GameBoard(props: GameBoardProps) {
       y2: linePos.value.y2,
     };
   });
-  // const animatedStyles = useAnimatedStyle(() => {
-  //   console.log(linePos.value);
-  //   return linePos.value;
-  //   // const rise = linePos.value.y2 - linePos.value.y1;
-  //   // const run = linePos.value.x2 - linePos.value.x1;
-  //   // const slope = run === 0 ? 0 : rise / run;
-  //   // const DEGREES = 57.2957795;
-  //   // const width = Math.sqrt((rise ** 2) +( run ** 2));
-  //   // const rotation = Math.atan(slope) * DEGREES;
+  const [selectedNode, setSelectedNode] = useState<INodeCoords | null>(null);
 
-  //   // console.log(slope, width, rotation);
-
-  //   // return {
-  //   //   position: "absolute",
-  //   //   top: linePos.value.y1,
-  //   //   left: linePos.value.x1,
-  //   //   backgroundColor: "white",
-  //   //   width,
-  //   //   height: 2,
-  //   //   transform: [
-  //   //     { rotate: `${rotation}deg` },
-  //   //   ],
-  //   //   transformOrigin: "0 0",
-  //   // };
-  // });
 
   function handleOnLayout() {
     for (const [key, node] of Object.entries(nodesRef.current)) {
@@ -76,10 +53,10 @@ export function GameBoard(props: GameBoardProps) {
           setNodePositions((prev) => ({
             ...prev,
             [key]: {
-              px1: pageX,
-              py1: pageY,
-              px2: pageX + width,
-              py2: pageY + height,
+              px1: pageX - (NODE_PADDING / 2),
+              py1: pageY - (NODE_PADDING / 2),
+              px2: pageX + width + (NODE_PADDING / 2),
+              py2: pageY + height + (NODE_PADDING / 2),
             },
           }));
         });
@@ -87,20 +64,49 @@ export function GameBoard(props: GameBoardProps) {
     }
   }
 
+  function findNearestNode(pos: INodeCoords): INodeCoords | null {
+    "worklet";
+
+    let nearestNode: INodeCoords | null = null;
+
+    for (const [key, { px1, py1, px2, py2 }] of Object.entries(nodePositions)) {
+      if (pos.x >= px1 && pos.x <= px2 && pos.y >= py1 && pos.y <= py2) {
+        const nodeCoords = key.split(",").map((n) => parseInt(n, 10));
+        nearestNode = { x: nodeCoords[0], y: nodeCoords[1] };
+        break;
+      }
+    }
+
+    return nearestNode;
+  }
+
+  useAnimatedReaction(() => activeNode.value, (value, prevValue) => {
+    if(value === prevValue) {
+      return;
+    }
+
+    if (value === null) {
+      return;
+    }
+
+    runOnJS(setSelectedNode)(value);
+  });
+
+
   const tapGesture = Gesture.Tap()
     .onStart((e) => {
-      const foundNode = {x: -1, y: -1};
-      const pos = { x: e.absoluteX, y: e.absoluteY };
+      // const foundNode = {x: -1, y: -1};
+      // const pos = { x: e.absoluteX, y: e.absoluteY };
 
-      for (const [key, { px1, py1, px2, py2 }] of Object.entries(nodePositions)) {
-        if (pos.x >= px1 && pos.x <= px2 && pos.y >= py1 && pos.y <= py2) {
-          foundNode.x = parseInt(key.split(",")[0]);
-          foundNode.y = parseInt(key.split(",")[1]);
-          break;
-        }
-      }
+      // for (const [key, { px1, py1, px2, py2 }] of Object.entries(nodePositions)) {
+      //   if (pos.x >= px1 && pos.x <= px2 && pos.y >= py1 && pos.y <= py2) {
+      //     foundNode.x = parseInt(key.split(",")[0]);
+      //     foundNode.y = parseInt(key.split(",")[1]);
+      //     break;
+      //   }
+      // }
 
-      runOnJS(setSelectedNode)(foundNode);
+      // runOnJS(setactiveNode)(foundNode);
     });
 
   const dragGesture = Gesture.Pan()
@@ -108,7 +114,16 @@ export function GameBoard(props: GameBoardProps) {
     .minPointers(1)
     .averageTouches(true)
     .onStart((e) => {
-      const nodePos = nodePositions[`${selectedNode.x},${selectedNode.y}`];
+      const nearestNode = findNearestNode({ x: e.absoluteX, y: e.absoluteY });
+
+      if (nearestNode === null) {
+        activeNode.value = null;
+        return;
+      }
+
+      activeNode.value = nearestNode;
+
+      const nodePos = nodePositions[`${activeNode.value.x},${activeNode.value.y}`];
 
       linePos.value = {
         x1: (nodePos.px1 + nodePos.px2) / 2,
@@ -118,7 +133,17 @@ export function GameBoard(props: GameBoardProps) {
       };
     })
     .onUpdate((e) => {
-      const nodePos = nodePositions[`${selectedNode.x},${selectedNode.y}`];
+      if (!activeNode.value) {
+        linePos.value = {
+          x1: 0,
+          y1: 0,
+          x2: 0,
+          y2: 0,
+        };
+        return;
+      }
+
+      const nodePos = nodePositions[`${activeNode.value.x},${activeNode.value.y}`];
 
       linePos.value = {
         x1: (nodePos.px1 + nodePos.px2) / 2,
@@ -136,15 +161,37 @@ export function GameBoard(props: GameBoardProps) {
       };
     });
 
-  const gestures = Gesture.Exclusive(tapGesture, dragGesture);
+  const gestures = Gesture.Exclusive(dragGesture);
 
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
+    <GestureHandlerRootView
+      style={{
+        flex: 1,
+        backgroundColor: "#1B2036"
+      }}
+    >
+      {/* Line */}
+      <Svg style={{
+        position: "absolute",
+        top: 0,
+        left: 0,
+        width: "100%",
+        height: "100%",
+      }}>
+        <AnimatedSVGLine
+          animatedProps={animatedLineProps}
+          x1={linePos.value.x1}
+          y1={linePos.value.y1}
+          x2={linePos.value.x2}
+          y2={linePos.value.y2}
+          stroke="white"
+          strokeWidth={4}
+        />
+      </Svg>
       <SafeAreaView style={{
         flex: 1,
         width: "100%",
         height: "100%",
-        backgroundColor: "#1B2036"
       }}>
         <Button title="Reset" onPress={handleReset} />
 
@@ -200,7 +247,7 @@ export function GameBoard(props: GameBoardProps) {
                     }}
                   >
                     <Shape
-                      state={selectedNode.x === x && selectedNode.y === y ? NodeState.Selected : NodeState.Default}
+                      state={selectedNode && selectedNode.x === x && selectedNode.y === y ? NodeState.Selected : node.state}
                       type={node.shape}
                       color={node.color}
                       size={NODE_SIZE}
@@ -212,25 +259,6 @@ export function GameBoard(props: GameBoardProps) {
           </View>
         </GestureDetector>
       </SafeAreaView>
-
-        {/* Line */}
-        <Svg style={{
-          position: "absolute",
-          top: 0,
-          left: 0,
-          width: "100%",
-          height: "100%",
-        }}>
-          <AnimatedSVGLine
-            animatedProps={animatedProps}
-            x1={linePos.value.x1}
-            y1={linePos.value.y1}
-            x2={linePos.value.x2}
-            y2={linePos.value.y2}
-            stroke="white"
-            strokeWidth={4}
-          />
-        </Svg>
     </GestureHandlerRootView>
     );
 }

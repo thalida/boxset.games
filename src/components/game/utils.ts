@@ -1,4 +1,4 @@
-import { Direction, IGame, INode, INodeCoords, IPuzzle, ShapeColor, ShapeType, TBoard, TFlatBoard, TPuzzle } from "./enums";
+import { Direction, IGame, INode, INodeCoords, NodeState, ShapeColor, ShapeType, TBoard, TPuzzle } from "./enums";
 
 function getRandomNumber(min: number, max: number): number {
   return Math.floor(Math.random() * (max - min + 1) + min);
@@ -88,6 +88,7 @@ function generatePuzzle(boardSize: number, pathSize: number): TPuzzle {
         y: coords[i].y,
         color: getRandomColor(),
         shape: getRandomShape(),
+        state: NodeState.Default,
       });
       continue;
     }
@@ -125,6 +126,7 @@ function generatePuzzle(boardSize: number, pathSize: number): TPuzzle {
       y: coords[i].y,
       color,
       shape,
+      state: NodeState.Default,
     });
   }
 
@@ -143,6 +145,7 @@ export function generateBoard(boardSize: number, puzzle: TPuzzle): TBoard {
         y,
         color: getRandomColor(),
         shape: getRandomShape(),
+        state: NodeState.Default,
       }
       row.push(node);
     }

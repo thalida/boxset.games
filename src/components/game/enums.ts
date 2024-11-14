@@ -41,4 +41,5 @@ export interface INodeCoords {
 export interface INode extends INodeCoords {
   shape: ShapeType;
   color: ShapeColor;
+  state: NodeState;
 }
