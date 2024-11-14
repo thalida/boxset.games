@@ -145,7 +145,7 @@ export function GameBoard(props: GameBoardProps) {
                     </Pressable>
                     {x < row.length - 1 && (
                       <LinearGradient
-                        colors={[node.color, row[x + 1].color]}
+                        colors={[gameUtils.getNodeDisplayColor(node), gameUtils.getNodeDisplayColor(row[x + 1])]}
                         start={{ x: 0, y: 0.5 }}
                         end={{ x: 1, y: 0.5 }}
                         style={{
@@ -159,7 +159,7 @@ export function GameBoard(props: GameBoardProps) {
                   </View>
                   {y < game.board.length - 1 && (
                     <LinearGradient
-                      colors={[node.color, game.board[y + 1][x].color]}
+                      colors={[gameUtils.getNodeDisplayColor(node), gameUtils.getNodeDisplayColor(game.board[y + 1][x])]}
                       style={{
                         width: 4,
                         height: NODE_PADDING,

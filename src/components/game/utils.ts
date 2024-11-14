@@ -1,5 +1,5 @@
 import { IGame, INode, INodeCoords, TBoard, TPuzzle } from "./types";
-import { NodeState, ShapeColor, ShapeType } from "./constants";
+import { NodeState, SHAPE_COLORS, ShapeColor, ShapeType } from "./constants";
 
 function getRandomNumber(min: number, max: number): number {
   return Math.floor(Math.random() * (max - min + 1) + min);
@@ -196,4 +196,8 @@ export function isNodeInPath(path: Array<INode>, node: INode) {
 
 export function nodePathIndex(path: Array<INode>, node: INode) {
   return path.findIndex((p) => isSameNode(p, node));
+}
+
+export function getNodeDisplayColor(node: INode) {
+  return SHAPE_COLORS[node.color];
 }
