@@ -168,8 +168,6 @@ export function generateGame(boardSize: number, pathSize: number): IGame {
 }
 
 export function isValidMove(puzzle: TPuzzle, path: Array<INode>, move: INode) {
-  "worklet";
-
   if (path.length === 0) {
     return move.shape === puzzle[0].shape && move.color === puzzle[0].color;
   }
@@ -184,8 +182,6 @@ export function isValidMove(puzzle: TPuzzle, path: Array<INode>, move: INode) {
 }
 
 export function isSameNode(node1: INode, node2: INode) {
-  "worklet";
-
   if (!node1 || !node2) {
     return false;
   }
@@ -194,7 +190,5 @@ export function isSameNode(node1: INode, node2: INode) {
 }
 
 export function isNodeInPath(path: Array<INode>, node: INode) {
-  "worklet";
-
   return !!path.find((p) => isSameNode(p, node));
 }

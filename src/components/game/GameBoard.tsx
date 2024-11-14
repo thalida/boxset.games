@@ -1,4 +1,4 @@
-import { Text, type TextProps, StyleSheet, Platform, View, Button } from 'react-native';
+import { Text, type TextProps, StyleSheet, Platform, View, Button, Pressable } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler';
 
@@ -26,8 +26,43 @@ export function GameBoard(props: GameBoardProps) {
   const startNode = useMemo(() => game.puzzle[0], [game.puzzle]);
   const endNode = useMemo(() => game.puzzle[game.puzzle.length - 1], [game.puzzle]);
 
+  const [path, setPath] = useState<Array<INode>>([]);
+
   function handleReset() {
     setGame(gameUtils.generateGame(BOARD_SIZE, PATH_SIZE));
+  }
+
+  function handleNodePress(node: INode) {
+    const isNodeInPath = gameUtils.isNodeInPath(path, node);
+
+    if (isNodeInPath) {
+      const nodeIndex = path.findIndex((p) => p.x === node.x && p.y === node.y);
+      setPath(path.slice(0, nodeIndex));
+      return;
+    }
+
+    const isValidMove = gameUtils.isValidMove(game.puzzle, path, node);
+
+    if (!isValidMove) {
+      return;
+    }
+
+    setPath([...path, node]);
+  }
+
+  function getNodeState(node: INode) {
+    const isNodeInPath = gameUtils.isNodeInPath(path, node);
+    const isLastSelected = gameUtils.isSameNode(path[path.length - 1], node);
+
+    if (isLastSelected) {
+      return NodeState.Selected;
+    }
+
+    if (isNodeInPath) {
+      return NodeState.Connected
+    }
+
+    return NodeState.Default;
   }
 
   return (
@@ -85,12 +120,14 @@ export function GameBoard(props: GameBoardProps) {
                 <View
                   key={`${x},${y}`}
                 >
-                  <Shape
-                    state={NodeState.Default}
-                    type={node.shape}
-                    color={node.color}
-                    size={NODE_SIZE}
-                  />
+                  <Pressable onPress={() => handleNodePress(node)}>
+                    <Shape
+                      state={getNodeState(node)}
+                      type={node.shape}
+                      color={node.color}
+                      size={NODE_SIZE}
+                    />
+                  </Pressable>
                 </View>
               ))}
             </View>
