@@ -13,7 +13,7 @@ export type GameBoardProps = {};
 
 export function GameBoard(props: GameBoardProps) {
   const BOARD_SIZE = 8;
-  const PATH_SIZE = 4;
+  const PATH_SIZE = 8;
   const NODE_SIZE = 28;
   const NODE_PADDING = 16;
 
