@@ -103,7 +103,7 @@ export function GameBoard(props: GameBoardProps) {
           style={{
             display: "flex",
             flexDirection: "column",
-            gap: NODE_PADDING,
+            gap: 0,
             marginHorizontal: "auto",
           }}
         >
@@ -114,20 +114,45 @@ export function GameBoard(props: GameBoardProps) {
               display: "flex",
               width: "100%",
               flexDirection: "row",
-              gap: NODE_PADDING,
+              gap: 0,
             }}>
               {row.map((node, x) => (
                 <View
                   key={`${x},${y}`}
+                  style={{
+                    flexDirection: "column",
+                    alignItems: "start",
+                  }}
                 >
-                  <Pressable onPress={() => handleNodePress(node)}>
-                    <Shape
-                      state={getNodeState(node)}
-                      type={node.shape}
-                      color={node.color}
-                      size={NODE_SIZE}
-                    />
-                  </Pressable>
+                  <View style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                  }}>
+                    <Pressable onPress={() => handleNodePress(node)}>
+                      <Shape
+                        state={getNodeState(node)}
+                        type={node.shape}
+                        color={node.color}
+                        size={NODE_SIZE}
+                      />
+                    </Pressable>
+                    {x < row.length - 1 && (
+                      <View style={{
+                        width: NODE_PADDING,
+                        height: 4,
+                        backgroundColor: "#000",
+                        borderRadius: 2,
+                      }} />
+                    )}
+                  </View>
+                  {y < game.board.length - 1 && (
+                    <View style={{
+                      width: 4,
+                      height: NODE_PADDING,
+                      backgroundColor: "#000",
+                      borderRadius: 2,
+                      marginLeft: NODE_SIZE / 2 - 2,
+                    }} /> )}
                 </View>
               ))}
             </View>
