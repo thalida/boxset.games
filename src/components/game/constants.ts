@@ -26,7 +26,12 @@ export enum NodeState {
   Faded = "faded",
 }
 
-export const SELECTED_COLOR = "#FFFBDB";
+export const UI_COLORS = {
+  "background": "#1B2036",
+  "text": "#FFFFFF",
+  "selected": "#FFFBDB",
+  "error": "#FF0000",
+}
 export const SHAPE_COLORS = {
   [ShapeColor.Red]: "#D40004",
   [ShapeColor.Green]: "#00D400",

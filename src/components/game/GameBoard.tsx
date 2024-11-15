@@ -4,11 +4,11 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
 import { MotiPressable } from 'moti/interactions'
-import { StarIcon } from "react-native-heroicons/solid";
+import { StarIcon, XMarkIcon } from "react-native-heroicons/solid";
 
 import { Shape } from './Shape';
 import { IGame, INode, INodeCoords } from './types';
-import { NodeState, SELECTED_COLOR, ShapeColor, ShapeType } from './constants';
+import { NodeState, UI_COLORS } from './constants';
 import * as gameUtils from './utils';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 
@@ -134,7 +134,7 @@ export function GameBoard(props: GameBoardProps) {
 
   function getMoveCountBorder() {
     if (path.length === 0) {
-      return "#fff";
+      return UI_COLORS.text;
     }
 
     if (path.length == 1) {
@@ -142,10 +142,10 @@ export function GameBoard(props: GameBoardProps) {
     }
 
     if (!isPuzzleSolved && numRemainingMoves === 0) {
-      return "#FF0000";
+      return UI_COLORS.error;
     }
 
-    return SELECTED_COLOR;
+    return UI_COLORS.selected;
   }
 
   function getNodeState(node: INode) {
@@ -194,7 +194,7 @@ export function GameBoard(props: GameBoardProps) {
         flex: 1,
         width: "100%",
         height: "100%",
-        backgroundColor: "#1B2036",
+        backgroundColor: UI_COLORS.background,
         justifyContent: "space-between",
       }}>
         <View style={{
@@ -231,7 +231,7 @@ export function GameBoard(props: GameBoardProps) {
               />
 
               <LinearGradient
-                colors={[gameUtils.getNodeDisplayColor(startNode), gameUtils.getNodeDisplayColor(endNode), "#1B2036"]}
+                colors={[gameUtils.getNodeDisplayColor(startNode), gameUtils.getNodeDisplayColor(endNode), UI_COLORS.background]}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y:  0}}
                 locations={[0, numRemainingMovesGradient, numRemainingMovesGradient]}
@@ -257,10 +257,13 @@ export function GameBoard(props: GameBoardProps) {
                   width: "100%",
                   height: "100%",
                 }}>
-                  {!isPuzzleSolved && (
+                  {!isPuzzleSolved && numRemainingMoves > 0 && (
                     <Text style={{ color: "#fff", fontSize: 16, fontWeight: "bold" }}>
                       {numRemainingMoves}
                     </Text>
+                  )}
+                  {!isPuzzleSolved && numRemainingMoves === 0 && (
+                    <XMarkIcon color={UI_COLORS.error} size={18} />
                   )}
                   {isPuzzleSolved && (
                     <StarIcon color="#fff" size={18} />

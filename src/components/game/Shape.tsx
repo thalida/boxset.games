@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { StyleSheet } from 'react-native';
 import  Svg, { Circle, G, Path } from 'react-native-svg';
-import { NodeState, SELECTED_COLOR, SHAPE_COLORS, ShapeColor, ShapeType } from './constants';
+import { NodeState, SHAPE_COLORS, ShapeColor, ShapeType, UI_COLORS } from './constants';
 
 export type ShapeProps = {
   state: NodeState;
@@ -32,8 +32,8 @@ export function Shape(props: ShapeProps) {
     switch (props.state) {
       case NodeState.Default: return SHAPE_COLORS[props.color];
       case NodeState.Faded: return SHAPE_COLORS[props.color];
-      case NodeState.Connected: return SELECTED_COLOR;
-      case NodeState.Selected: return SELECTED_COLOR;
+      case NodeState.Connected: return UI_COLORS.selected;
+      case NodeState.Selected: return UI_COLORS.selected;
     }
   }, [props.state, props.color]);
 
