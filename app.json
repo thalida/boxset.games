@@ -19,6 +19,7 @@
       "output": "static"
     },
     "plugins": [
+      "expo-av",
       "expo-router",
       [
         "expo-font",

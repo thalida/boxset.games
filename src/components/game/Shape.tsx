@@ -24,22 +24,25 @@ export function Shape(props: ShapeProps) {
       case NodeState.Default: return 1;
       case NodeState.Selected: return 1;
       case NodeState.Connected: return 0.5;
+      case NodeState.Faded: return 0.2;
     }
   }, [props.state]);
 
   const stroke = useMemo(() => {
-    if (props.state === NodeState.Selected) {
-      return SELECTED_COLOR;
+    switch (props.state) {
+      case NodeState.Default: return SHAPE_COLORS[props.color];
+      case NodeState.Selected: return SELECTED_COLOR;
+      case NodeState.Connected: return SELECTED_COLOR;
+      case NodeState.Faded: return SHAPE_COLORS[props.color];
     }
-
-    return SHAPE_COLORS[props.color];
   }, [props.state, props.color]);
 
   const strokeOpacity = useMemo(() => {
     switch (props.state) {
       case NodeState.Default: return 0;
       case NodeState.Selected: return 1;
-      case NodeState.Connected: return 1;
+      case NodeState.Connected: return 0.8;
+      case NodeState.Faded: return 0;
     }
   }, [props.state]);
 

@@ -23,6 +23,7 @@ export enum NodeState {
   Default = "default",
   Selected = "selected",
   Connected = "connected",
+  Faded = "faded",
 }
 
 export const SELECTED_COLOR = "#FFFBDB";

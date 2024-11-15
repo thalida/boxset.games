@@ -1,4 +1,5 @@
 import { Text, type TextProps, StyleSheet, Platform, View, Button, Pressable } from 'react-native';
+import { Audio } from 'expo-av';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { MotiPressable } from 'moti/interactions'
@@ -8,7 +9,7 @@ import { Shape } from './Shape';
 import { IGame, INode, INodeCoords } from './types';
 import { NodeState, ShapeColor, ShapeType } from './constants';
 import * as gameUtils from './utils';
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 
 export type GameBoardProps = {};
 
@@ -21,6 +22,11 @@ export function GameBoard(props: GameBoardProps) {
 
   const [game, setGame] = useState<IGame>(() => gameUtils.generateGame(BOARD_SIZE, PATH_SIZE));
   const [path, setPath] = useState<INode[]>([]);
+
+  const [goodMoveSound] = useState<Audio.Sound>(new Audio.Sound());
+  const [badMoveSound] = useState<Audio.Sound>(new Audio.Sound());
+  const [undoMoveSound] = useState<Audio.Sound>(new Audio.Sound());
+  const [winSound] = useState<Audio.Sound>(new Audio.Sound());
 
   const startNode = useMemo(() => game.puzzle[0], [game.puzzle]);
   const endNode = useMemo(() => game.puzzle[game.puzzle.length - 1], [game.puzzle]);
@@ -35,6 +41,32 @@ export function GameBoard(props: GameBoardProps) {
     const isSameLength = path.length === game.puzzle.length;
     return isStartSame && isEndSame && isSameLength;
   }, [startNode, endNode, path, game.puzzle]);
+
+
+  useEffect(() => {
+    async function loadSounds() {
+      await Audio.setAudioModeAsync({ playsInSilentModeIOS: true });
+      goodMoveSound.loadAsync(require('../../assets/sounds/good-move.mp3'));
+      badMoveSound.loadAsync(require('../../assets/sounds/bad-move.mp3'));
+      undoMoveSound.loadAsync(require('../../assets/sounds/undo-move.mp3'));
+      winSound.loadAsync(require('../../assets/sounds/win.mp3'));
+    }
+
+    loadSounds();
+
+    return () => {
+      goodMoveSound?.unloadAsync();
+      badMoveSound?.unloadAsync();
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!isPuzzleSolved) {
+      return;
+    }
+
+    playSound(winSound);
+  }, [isPuzzleSolved]);
 
   function handleReset() {
     setPath([]);
@@ -53,23 +85,30 @@ export function GameBoard(props: GameBoardProps) {
       const isLastNode = nodeIndex === path.length - 1;
       const goBackTo = isLastNode ? nodeIndex : nodeIndex + 1;
       setPath(path.slice(0, goBackTo));
+      playSound(undoMoveSound);
       return;
     }
 
     const isValidMove = gameUtils.isValidMove(game.puzzle, path, node);
 
     if (!isValidMove) {
+      playSound(badMoveSound);
       return;
     }
 
     setPath([...path, node]);
+    playSound(goodMoveSound);
   }
 
   function getNodeState(node: INode) {
     const isNodeInPath = gameUtils.isNodeInPath(path, node);
     const isLastSelected = gameUtils.isSameNode(path[path.length - 1], node);
 
-    if ((isPuzzleSolved && isNodeInPath) || isLastSelected) {
+    if (isPuzzleSolved) {
+      return isNodeInPath ? NodeState.Selected : NodeState.Faded;
+    }
+
+    if (isLastSelected) {
       return NodeState.Selected;
     }
 
@@ -90,16 +129,16 @@ export function GameBoard(props: GameBoardProps) {
     return foundNodes && isAdjacent ?  { opacity: 1 } : { opacity: 0 };
   }
 
-  function getProgressColor() {
-    const progress = path.length / game.puzzle.length;
-    const startColor = { r: 255, g: 255, b: 255 };
-    const endColor = { r: 0, g: 255, b: 0 };
+  async function playSound(sound: Audio.Sound | null | undefined) {
+    if (!sound) {
+      return;
+    }
 
-    const r = Math.round((1 - progress) * startColor.r + progress * endColor.r);
-    const g = Math.round((1 - progress) * startColor.g + progress * endColor.g);
-    const b = Math.round((1 - progress) * startColor.b + progress * endColor.b);
-
-    return `rgb(${r}, ${g}, ${b})`;
+    try {
+      await sound.replayAsync();
+    } catch (error) {
+      console.error(error);
+    }
   }
 
   return (
@@ -240,9 +279,9 @@ export function GameBoard(props: GameBoardProps) {
                         useMemo(() =>  ({ hovered, pressed }: { hovered: boolean, pressed: boolean}) => {
                           'worklet'
                           return {
-                            scale: hovered || pressed ? 0.5 : 1,
+                            scale: !isPuzzleSolved && (hovered || pressed) ? 0.5 : 1,
                           }
-                        }, [])
+                        }, [isPuzzleSolved])
                      }
                      transition={{
                         scale: { type: 'spring', damping: 5, stiffness: 100, }
