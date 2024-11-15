@@ -4,14 +4,14 @@ import 'react-native-reanimated';
 import 'react-native-gesture-handler';
 
 import { useColorScheme } from '@/hooks/useColorScheme';
-import { GameBoard } from '@/components/game/GameBoard';
+import ShapeConnector from '@/games/shapeconnector';
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
 
   return (
     <ThemeProvider value={DefaultTheme}>
-      <GameBoard />
+      <ShapeConnector />
     </ThemeProvider>
   );
 }

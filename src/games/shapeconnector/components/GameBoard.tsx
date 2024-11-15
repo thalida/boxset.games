@@ -7,9 +7,9 @@ import { MotiPressable } from 'moti/interactions'
 import { StarIcon, XMarkIcon } from "react-native-heroicons/solid";
 
 import { Shape } from './Shape';
-import { IGame, INode, INodeCoords } from './types';
-import { NodeState, UI_COLORS } from './constants';
-import * as gameUtils from './utils';
+import { IGame, INode } from '../types';
+import { NodeState, UI_COLORS } from '../constants';
+import * as gameUtils from '../utils';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 
 export type GameBoardProps = {};
@@ -17,7 +17,7 @@ export type GameBoardProps = {};
 
 export function GameBoard(props: GameBoardProps) {
   const BOARD_SIZE = 8;
-  const PATH_SIZE = 4;
+  const PATH_SIZE = 2;
   const NODE_SIZE = 28;
   const NODE_PADDING = 16;
 
@@ -52,11 +52,11 @@ export function GameBoard(props: GameBoardProps) {
   useEffect(() => {
     async function loadSounds() {
       await Audio.setAudioModeAsync({ playsInSilentModeIOS: true });
-      goodMoveSound.loadAsync(require('../../assets/sounds/good-move.mp3'));
-      badMoveSound.loadAsync(require('../../assets/sounds/bad-move.mp3'));
-      undoMoveSound.loadAsync(require('../../assets/sounds/undo-move.mp3'));
-      winSound.loadAsync(require('../../assets/sounds/win.mp3'));
-      loseSound.loadAsync(require('../../assets/sounds/lose.mp3'));
+      goodMoveSound.loadAsync(require('../assets/sounds/good-move.mp3'));
+      badMoveSound.loadAsync(require('../assets/sounds/bad-move.mp3'));
+      undoMoveSound.loadAsync(require('../assets/sounds/undo-move.mp3'));
+      winSound.loadAsync(require('../assets/sounds/win.mp3'));
+      loseSound.loadAsync(require('../assets/sounds/lose.mp3'));
     }
 
     loadSounds();

@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { StyleSheet } from 'react-native';
 import  Svg, { Circle, G, Path } from 'react-native-svg';
-import { NodeState, SHAPE_COLORS, ShapeColor, ShapeType, UI_COLORS } from './constants';
+import { NodeState, SHAPE_COLORS, ShapeColor, ShapeType, UI_COLORS } from '../constants';
 
 export type ShapeProps = {
   state: NodeState;
