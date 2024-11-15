@@ -7,7 +7,7 @@ import { StarIcon } from "react-native-heroicons/solid";
 
 import { Shape } from './Shape';
 import { IGame, INode, INodeCoords } from './types';
-import { NodeState, ShapeColor, ShapeType } from './constants';
+import { NodeState, SELECTED_COLOR, ShapeColor, ShapeType } from './constants';
 import * as gameUtils from './utils';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 
@@ -33,6 +33,10 @@ export function GameBoard(props: GameBoardProps) {
 
   const numRemainingMoves = useMemo(() => {
     return path.length > 0 ? game.puzzle.length - path.length : game.puzzle.length - 1;
+  }, [game.puzzle, path]);
+
+  const numRemainingMovesGradient = useMemo(() => {
+     return path.length > 1 ? (path.length - 1) / (game.puzzle.length - 1) : 0;
   }, [game.puzzle, path]);
 
   const isPuzzleSolved = useMemo(() => {
@@ -100,6 +104,35 @@ export function GameBoard(props: GameBoardProps) {
     playSound(goodMoveSound);
   }
 
+  function getStartNodeState() {
+    if (isPuzzleSolved) {
+      return NodeState.Selected;
+    }
+
+    const hasStartNode = gameUtils.isMatchingNode(path[0], startNode);
+    if (!hasStartNode) {
+      return NodeState.Default;
+    }
+
+    return path.length > 1 ? NodeState.Connected : NodeState.Selected;
+  }
+
+  function getMoveCountBorder() {
+    if (path.length === 0) {
+      return "#fff";
+    }
+
+    if (path.length == 1) {
+      return "rgba(200, 200, 200, 0.8)";
+    }
+
+    if (!isPuzzleSolved && numRemainingMoves === 0) {
+      return "#FF0000";
+    }
+
+    return SELECTED_COLOR;
+  }
+
   function getNodeState(node: INode) {
     const isNodeInPath = gameUtils.isNodeInPath(path, node);
     const isLastSelected = gameUtils.isSameNode(path[path.length - 1], node);
@@ -162,7 +195,7 @@ export function GameBoard(props: GameBoardProps) {
               alignItems: "center",
             }}>
               <Shape
-                state={isPuzzleSolved ? NodeState.Selected : path.length > 0 ? NodeState.Connected : NodeState.Default}
+                state={getStartNodeState()}
                 type={startNode.shape}
                 color={startNode.color}
                 size={NODE_SIZE}
@@ -186,7 +219,7 @@ export function GameBoard(props: GameBoardProps) {
                 colors={[gameUtils.getNodeDisplayColor(startNode), gameUtils.getNodeDisplayColor(endNode), "#1B2036"]}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y:  0}}
-                locations={[0, path.length / game.puzzle.length, path.length / game.puzzle.length]}
+                locations={[0, numRemainingMovesGradient, numRemainingMovesGradient]}
                 style={{
                   display: "flex",
                   flexDirection: "row",
@@ -196,7 +229,7 @@ export function GameBoard(props: GameBoardProps) {
                   height: NODE_SIZE + 8,
                   borderRadius: 50,
                   borderWidth: 3,
-                  borderColor: "#fff",
+                  borderColor: getMoveCountBorder(),
                   borderStyle: "solid",
                 }}
               >
