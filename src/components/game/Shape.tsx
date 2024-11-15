@@ -49,7 +49,16 @@ export function Shape(props: ShapeProps) {
   const strokeWidth = 8;
 
   return (
-    <Svg width={size} height={size}>
+    <Svg
+      width={size}
+      height={size}
+      style={{
+        shadowColor: fill,
+        shadowOffset: { width: 0, height: 0 },
+        shadowOpacity: 0.3,
+        shadowRadius: size,
+      }}
+    >
       <G transform={`scale(${scale})`}>
         {props.type === ShapeType.Square && (
           <Path
