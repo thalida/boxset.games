@@ -1,9 +1,9 @@
 {
   "expo": {
     "owner": "thalida.com",
-    "name": "Shape Connector",
-    "slug": "shapeconnector",
-    "scheme": "shapeconnector",
+    "name": "Boxset Games",
+    "slug": "boxsetgames",
+    "scheme": "boxsetgames",
     "version": "1.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "automatic",

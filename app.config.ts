@@ -12,7 +12,7 @@ export default ({ config: baseConfig }: ConfigContext): ExpoConfig => {
     : AppEnv.production;
   const isProduction = EXPO_PUBLIC_APP_ENV === AppEnv.production;
 
-  const baseAppIdentifier = "com.thalida.com.shapeconnector";
+  const baseAppIdentifier = "com.thalida.com.boxsetgames";
   const appIdentifier = isProduction
     ? baseAppIdentifier
     : `${baseAppIdentifier}.${EXPO_PUBLIC_APP_ENV}`;
