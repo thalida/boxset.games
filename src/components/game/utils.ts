@@ -169,6 +169,8 @@ export function generateGame(boardSize: number, pathSize: number): IGame {
 }
 
 export function isValidMove(puzzle: TPuzzle, path: Array<INode>, move: INode) {
+  "worklet";
+
   if (path.length === puzzle.length) {
     return false;
   }

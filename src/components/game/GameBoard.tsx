@@ -1,6 +1,7 @@
 import { Text, type TextProps, StyleSheet, Platform, View, Button, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
+import { MotiPressable } from 'moti/interactions'
 
 import { Shape } from './Shape';
 import { IGame, INode, INodeCoords } from './types';
@@ -21,7 +22,7 @@ export function GameBoard(props: GameBoardProps) {
   const startNode = useMemo(() => game.puzzle[0], [game.puzzle]);
   const endNode = useMemo(() => game.puzzle[game.puzzle.length - 1], [game.puzzle]);
 
-  const [path, setPath] = useState<Array<INode>>([]);
+  const [path, setPath] = useState<INode[]>([]);
   const numRemainingMoves = useMemo(() => {
     return path.length > 0 ? game.puzzle.length - path.length : game.puzzle.length - 1;
   }, [game.puzzle, path]);
@@ -148,14 +149,25 @@ export function GameBoard(props: GameBoardProps) {
                     flexDirection: "row",
                     alignItems: "center",
                   }}>
-                    <Pressable onPress={() => handleNodePress(node)}>
+                    <MotiPressable
+                      onPress={() => handleNodePress(node)}
+                      animate={
+                        useMemo(() =>  ({ hovered, pressed }: { hovered: boolean, pressed: boolean}) => {
+                          'worklet'
+
+                          return {
+                            scale: hovered || pressed ? 0.5 : 1,
+                          }
+                        }, [])
+                     }
+                    >
                       <Shape
                         state={getNodeState(node)}
                         type={node.shape}
                         color={node.color}
                         size={NODE_SIZE}
                       />
-                    </Pressable>
+                    </MotiPressable>
                     {x < row.length - 1 && (
                       <LinearGradient
                         colors={[gameUtils.getNodeDisplayColor(node), gameUtils.getNodeDisplayColor(row[x + 1])]}
