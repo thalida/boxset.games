@@ -27,6 +27,7 @@ export function GameBoard(props: GameBoardProps) {
   const [badMoveSound] = useState<Audio.Sound>(new Audio.Sound());
   const [undoMoveSound] = useState<Audio.Sound>(new Audio.Sound());
   const [winSound] = useState<Audio.Sound>(new Audio.Sound());
+  const [loseSound] = useState<Audio.Sound>(new Audio.Sound());
 
   const startNode = useMemo(() => game.puzzle[0], [game.puzzle]);
   const endNode = useMemo(() => game.puzzle[game.puzzle.length - 1], [game.puzzle]);
@@ -54,6 +55,7 @@ export function GameBoard(props: GameBoardProps) {
       badMoveSound.loadAsync(require('../../assets/sounds/bad-move.mp3'));
       undoMoveSound.loadAsync(require('../../assets/sounds/undo-move.mp3'));
       winSound.loadAsync(require('../../assets/sounds/win.mp3'));
+      loseSound.loadAsync(require('../../assets/sounds/lose.mp3'));
     }
 
     loadSounds();
@@ -61,16 +63,24 @@ export function GameBoard(props: GameBoardProps) {
     return () => {
       goodMoveSound?.unloadAsync();
       badMoveSound?.unloadAsync();
+      undoMoveSound?.unloadAsync();
+      winSound?.unloadAsync();
+      loseSound?.unloadAsync();
     }
   }, []);
 
   useEffect(() => {
-    if (!isPuzzleSolved) {
+    if (!isPuzzleSolved && numRemainingMoves > 0) {
+      return;
+    }
+
+    if (!isPuzzleSolved && numRemainingMoves === 0) {
+      playSound(loseSound);
       return;
     }
 
     playSound(winSound);
-  }, [isPuzzleSolved]);
+  }, [isPuzzleSolved, numRemainingMoves]);
 
   function handleReset() {
     setPath([]);
