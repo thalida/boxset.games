@@ -154,12 +154,14 @@ export function GameBoard(props: GameBoardProps) {
                       animate={
                         useMemo(() =>  ({ hovered, pressed }: { hovered: boolean, pressed: boolean}) => {
                           'worklet'
-
                           return {
                             scale: hovered || pressed ? 0.5 : 1,
                           }
                         }, [])
                      }
+                     transition={{
+                        scale: { type: 'spring', damping: 5, stiffness: 100, }
+                      }}
                     >
                       <Shape
                         state={getNodeState(node)}
