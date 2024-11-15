@@ -2,6 +2,7 @@ import { Text, type TextProps, StyleSheet, Platform, View, Button, Pressable } f
 import { Audio } from 'expo-av';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
+import * as Haptics from 'expo-haptics';
 import { MotiPressable } from 'moti/interactions'
 import { StarIcon } from "react-native-heroicons/solid";
 
@@ -107,11 +108,15 @@ export function GameBoard(props: GameBoardProps) {
 
     if (!isValidMove) {
       playSound(badMoveSound);
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy)
       return;
     }
 
     setPath([...path, node]);
     playSound(goodMoveSound);
+    Haptics.notificationAsync(
+      Haptics.NotificationFeedbackType.Success
+    )
   }
 
   function getStartNodeState() {
