@@ -181,11 +181,19 @@ export function isValidMove(puzzle: TPuzzle, path: Array<INode>, move: INode) {
 
   const lastNode = path[path.length - 1];
 
-  const isMatching = move.shape === lastNode.shape || move.color === lastNode.color;
+  const hasMatchingProp = move.shape === lastNode.shape || move.color === lastNode.color;
   const isNotVisited = !path.find((p) => p.x === move.x && p.y === move.y);
   const isNeighbour = Math.abs(move.x - lastNode.x) + Math.abs(move.y - lastNode.y) === 1;
 
-  return isMatching && isNotVisited && isNeighbour;
+  return hasMatchingProp && isNotVisited && isNeighbour;
+}
+
+export function isMatchingNode(node1: INode, node2: INode) {
+  if (!node1 || !node2) {
+    return false;
+  }
+
+  return node1.shape === node2.shape && node1.color === node2.color;
 }
 
 export function isSameNode(node1: INode, node2: INode) {

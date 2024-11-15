@@ -2,6 +2,7 @@ import { Text, type TextProps, StyleSheet, Platform, View, Button, Pressable } f
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { MotiPressable } from 'moti/interactions'
+import { StarIcon } from "react-native-heroicons/solid";
 
 import { Shape } from './Shape';
 import { IGame, INode, INodeCoords } from './types';
@@ -14,18 +15,26 @@ export type GameBoardProps = {};
 
 export function GameBoard(props: GameBoardProps) {
   const BOARD_SIZE = 8;
-  const PATH_SIZE = 8;
+  const PATH_SIZE = 4;
   const NODE_SIZE = 28;
   const NODE_PADDING = 16;
 
   const [game, setGame] = useState<IGame>(() => gameUtils.generateGame(BOARD_SIZE, PATH_SIZE));
+  const [path, setPath] = useState<INode[]>([]);
+
   const startNode = useMemo(() => game.puzzle[0], [game.puzzle]);
   const endNode = useMemo(() => game.puzzle[game.puzzle.length - 1], [game.puzzle]);
 
-  const [path, setPath] = useState<INode[]>([]);
   const numRemainingMoves = useMemo(() => {
     return path.length > 0 ? game.puzzle.length - path.length : game.puzzle.length - 1;
   }, [game.puzzle, path]);
+
+  const isPuzzleSolved = useMemo(() => {
+    const isStartSame = gameUtils.isMatchingNode(path[0], startNode);
+    const isEndSame = gameUtils.isMatchingNode(path[path.length - 1], endNode);
+    const isSameLength = path.length === game.puzzle.length;
+    return isStartSame && isEndSame && isSameLength;
+  }, [startNode, endNode, path, game.puzzle]);
 
   function handleReset() {
     setPath([]);
@@ -33,6 +42,10 @@ export function GameBoard(props: GameBoardProps) {
   }
 
   function handleNodePress(node: INode) {
+    if (isPuzzleSolved) {
+      return;
+    }
+
     const isNodeInPath = gameUtils.isNodeInPath(path, node);
 
     if (isNodeInPath) {
@@ -56,7 +69,7 @@ export function GameBoard(props: GameBoardProps) {
     const isNodeInPath = gameUtils.isNodeInPath(path, node);
     const isLastSelected = gameUtils.isSameNode(path[path.length - 1], node);
 
-    if (isLastSelected) {
+    if ((isPuzzleSolved && isNodeInPath) || isLastSelected) {
       return NodeState.Selected;
     }
 
@@ -77,45 +90,117 @@ export function GameBoard(props: GameBoardProps) {
     return foundNodes && isAdjacent ?  { opacity: 1 } : { opacity: 0 };
   }
 
+  function getProgressColor() {
+    const progress = path.length / game.puzzle.length;
+    const startColor = { r: 255, g: 255, b: 255 };
+    const endColor = { r: 0, g: 255, b: 0 };
+
+    const r = Math.round((1 - progress) * startColor.r + progress * endColor.r);
+    const g = Math.round((1 - progress) * startColor.g + progress * endColor.g);
+    const b = Math.round((1 - progress) * startColor.b + progress * endColor.b);
+
+    return `rgb(${r}, ${g}, ${b})`;
+  }
+
   return (
       <SafeAreaView style={{
         flex: 1,
         width: "100%",
         height: "100%",
-        backgroundColor: "#1B2036"
+        backgroundColor: "#1B2036",
+        justifyContent: "space-between",
       }}>
-        <Button title="Reset" onPress={handleReset} />
+        <View style={{
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+          alignItems: "center",
+          padding: 16,
+        }}>
+          {startNode && endNode && (
+            <View style={{
+              flexDirection: "row",
+              alignItems: "center",
+            }}>
+              <Shape
+                state={isPuzzleSolved ? NodeState.Selected : path.length > 0 ? NodeState.Connected : NodeState.Default}
+                type={startNode.shape}
+                color={startNode.color}
+                size={NODE_SIZE}
+              />
 
-        {/* { game.puzzle.map((node, index) => (
-            <Shape
-              state={NodeState.Default}
-              type={node.shape}
-              color={node.color}
-              size={NODE_SIZE}
-            />
-      ))} */}
+              <LinearGradient
+                colors={[gameUtils.getNodeDisplayColor(startNode), "#fff"]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y:  0}}
+                style={{
+                  width: NODE_PADDING / 2,
+                  height: 4,
+                  borderTopLeftRadius: 2,
+                  borderTopRightRadius: 0,
+                  borderBottomRightRadius: 0,
+                  borderBottomLeftRadius: 2,
+                }}
+              />
 
-        <View style={{ flexDirection: "row", gap: 4 }}>
-          {startNode && (
-            <Shape
-              state={NodeState.Selected}
-              type={startNode.shape}
-              color={startNode.color}
-              size={NODE_SIZE}
-            />
-          )}
+              <LinearGradient
+                colors={[gameUtils.getNodeDisplayColor(startNode), gameUtils.getNodeDisplayColor(endNode), "#1B2036"]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y:  0}}
+                locations={[0, path.length / game.puzzle.length, path.length / game.puzzle.length]}
+                style={{
+                  display: "flex",
+                  flexDirection: "row",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  width: NODE_SIZE + 8,
+                  height: NODE_SIZE + 8,
+                  borderRadius: 50,
+                  borderWidth: 3,
+                  borderColor: "#fff",
+                  borderStyle: "solid",
+                }}
+              >
+                <View style={{
+                  display: "flex",
+                  flexDirection: "row",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  backgroundColor: "rgba(0, 0, 0, 0.3)",
+                  width: "100%",
+                  height: "100%",
+                }}>
+                  {!isPuzzleSolved && (
+                    <Text style={{ color: "#fff", fontSize: 16, fontWeight: "bold" }}>
+                      {numRemainingMoves}
+                    </Text>
+                  )}
+                  {isPuzzleSolved && (
+                    <StarIcon color="#fff" size={18} />
+                  )}
+                </View>
+              </LinearGradient>
 
-          <Text style={{ color: "#fff" }}>
-              {numRemainingMoves}
-          </Text>
-
-          {endNode && (
-            <Shape
-              state={NodeState.Selected}
-              type={endNode.shape}
-              color={endNode.color}
-              size={NODE_SIZE}
-            />
+              <LinearGradient
+                colors={["#fff", gameUtils.getNodeDisplayColor(endNode)]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y:  0 }}
+                style={{
+                  width: NODE_PADDING / 2,
+                  height: 4,
+                  borderTopLeftRadius: 0,
+                  borderTopRightRadius: 2,
+                  borderBottomRightRadius: 2,
+                  borderBottomLeftRadius: 0,
+                }}
+              />
+              <Shape
+                state={isPuzzleSolved ? NodeState.Selected : path.length === game.puzzle.length && gameUtils.isMatchingNode(path[path.length - 1], endNode) ? NodeState.Connected : NodeState.Default}
+                type={endNode.shape}
+                color={endNode.color}
+                size={NODE_SIZE}
+              />
+            </View>
           )}
         </View>
 
@@ -173,12 +258,12 @@ export function GameBoard(props: GameBoardProps) {
                     {x < row.length - 1 && (
                       <LinearGradient
                         colors={[gameUtils.getNodeDisplayColor(node), gameUtils.getNodeDisplayColor(row[x + 1])]}
-                        start={{ x: 0, y: 0.5 }}
-                        end={{ x: 1, y: 0.5 }}
+                        start={{ x: 0, y: 0 }}
+                        end={{ x: 1, y: 0 }}
                         style={{
                           width: NODE_PADDING,
                           height: 4,
-                          borderRadius: 2,
+                          borderRadius: 4,
                           ...getNodeLineStyle(node, row[x + 1]),
                         }}
                       />
@@ -187,11 +272,13 @@ export function GameBoard(props: GameBoardProps) {
                   {y < game.board.length - 1 && (
                     <LinearGradient
                       colors={[gameUtils.getNodeDisplayColor(node), gameUtils.getNodeDisplayColor(game.board[y + 1][x])]}
+                      start={{ x: 0, y: 0 }}
+                      end={{ x: 0, y: 1 }}
                       style={{
                         width: 4,
                         height: NODE_PADDING,
-                        borderRadius: 2,
-                        marginLeft: NODE_SIZE / 2 - 2,
+                        borderRadius: 4,
+                        marginLeft: (NODE_SIZE / 2) - 2,
                         ...getNodeLineStyle(node, game.board[y + 1][x]),
                       }}
                     />
@@ -200,6 +287,10 @@ export function GameBoard(props: GameBoardProps) {
               ))}
             </View>
           ))}
+        </View>
+
+        <View>
+          <Button title="Reset" onPress={handleReset} />
         </View>
       </SafeAreaView>
     );
