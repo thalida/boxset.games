@@ -1,17 +1,6 @@
 import { IGame, INode, INodeCoords, TBoard, TPuzzle } from "./types";
-import { NodeState, SHAPE_COLORS, ShapeColor, ShapeType } from "./constants";
-
-function getRandomNumber(min: number, max: number): number {
-  return Math.floor(Math.random() * (max - min + 1) + min);
-}
-
-function getRandomBoolean(): boolean {
-  return Math.random() < 0.5;
-}
-
-function getRandomFromList<T>(list: Array<T>): T {
-  return list[getRandomNumber(0, list.length - 1)];
-}
+import { GAME_SETTINGS, GameDifficulty, NodeState, SHAPE_COLORS, ShapeColor, ShapeType } from "./constants";
+import * as utils from "@/utils";
 
 function getRandomColor(exclude?: ShapeColor[]): ShapeColor {
   let colors = [ShapeColor.Red, ShapeColor.Green, ShapeColor.Blue, ShapeColor.Yellow];
@@ -20,7 +9,7 @@ function getRandomColor(exclude?: ShapeColor[]): ShapeColor {
     colors = colors.filter((c) => !exclude.includes(c));
   }
 
-  return colors[getRandomNumber(0, colors.length - 1)];
+  return colors[utils.getRandomNumber(0, colors.length - 1)];
 }
 
 function getRandomShape(exclude?: ShapeType[]): ShapeType {
@@ -30,7 +19,7 @@ function getRandomShape(exclude?: ShapeType[]): ShapeType {
     shapes = shapes.filter((s) => !exclude.includes(s));
   }
 
-  return shapes[getRandomNumber(0, shapes.length - 1)];
+  return shapes[utils.getRandomNumber(0, shapes.length - 1)];
 }
 
 
@@ -47,7 +36,7 @@ function generatePuzzleCoords(
   const parentNode = path[path.length - 1];
 
   if (typeof parentNode === 'undefined') {
-    const node = { x: getRandomNumber(0, boardSize - 1), y: getRandomNumber(0, boardSize - 1) };
+    const node = { x: utils.getRandomNumber(0, boardSize - 1), y: utils.getRandomNumber(0, boardSize - 1) };
     path.push(node);
     visited.push(node);
     return generatePuzzleCoords(boardSize, pathSize, path, visited);
@@ -68,7 +57,7 @@ function generatePuzzleCoords(
     return generatePuzzleCoords(boardSize, pathSize, path.slice(0, -1), visited);
   }
 
-  const nextNode = getRandomFromList(validMoves);
+  const nextNode = utils.getRandomFromList(validMoves);
   path.push(nextNode);
   visited.push(nextNode);
 
@@ -117,7 +106,7 @@ function generatePuzzle(boardSize: number, pathSize: number): TPuzzle {
     } else if (sameShape) {
       shape = getRandomShape(excludeShapes);
     } else {
-      const keepColor = getRandomBoolean();
+      const keepColor = utils.getRandomBoolean();
       color = keepColor ? color : getRandomColor(excludeColors);
       shape = !keepColor ? shape : getRandomShape(excludeShapes);
     }
@@ -214,4 +203,8 @@ export function nodePathIndex(path: Array<INode>, node: INode) {
 
 export function getNodeDisplayColor(node: INode) {
   return SHAPE_COLORS[node.color];
+}
+
+export function getGameSettings(mode: GameDifficulty) {
+  return GAME_SETTINGS[mode] || GAME_SETTINGS[GameDifficulty.EASY];
 }

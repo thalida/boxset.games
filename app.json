@@ -24,7 +24,13 @@
       [
         "expo-font",
         {
-          "fonts": ["node_modules/@expo-google-fonts/outfit/Outfit_400Regular.ttf"]
+          "fonts": [
+            "node_modules/@expo-google-fonts/outfit/Outfit_400Regular.ttf",
+            "node_modules/@expo-google-fonts/outfit/Outfit_500Medium.ttf",
+            "node_modules/@expo-google-fonts/outfit/Outfit_600SemiBold.ttf",
+            "node_modules/@expo-google-fonts/outfit/Outfit_700Bold.ttf",
+            "./src/assets/fonts/BagelFatOne-Regular.ttf"
+          ]
         }
       ]
     ],

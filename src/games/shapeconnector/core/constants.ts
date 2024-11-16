@@ -1,21 +1,21 @@
 import { IGameSettings } from "./types";
 
-export enum GameModes {
+export enum GameDifficulty {
   EASY = "easy",
   MEDIUM = "medium",
   HARD = "hard",
 }
 
-export const GAME_SETTINGS: Record<GameModes, IGameSettings> = {
-  [GameModes.EASY]: {
+export const GAME_SETTINGS: Record<GameDifficulty, IGameSettings> = {
+  [GameDifficulty.EASY]: {
     boardSize: 5,
     pathSize: 4,
   },
-  [GameModes.MEDIUM]: {
+  [GameDifficulty.MEDIUM]: {
     boardSize: 7,
     pathSize: 8,
   },
-  [GameModes.HARD]: {
+  [GameDifficulty.HARD]: {
     boardSize: 9,
     pathSize: 16,
   },
@@ -55,6 +55,7 @@ export const UI_COLORS = {
   "selected": "#FFFBDB",
   "error": "#FF0000",
 }
+
 export const SHAPE_COLORS = {
   [ShapeColor.Red]: "#D40004",
   [ShapeColor.Green]: "#00D400",
