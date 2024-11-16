@@ -1,5 +1,10 @@
 import { NodeState, ShapeColor, ShapeType } from "./constants";
 
+export interface IGameSettings {
+  boardSize: number;
+  pathSize: number;
+}
+
 export interface IGame {
   board: TBoard;
   puzzle: INode[];

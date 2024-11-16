@@ -1,3 +1,26 @@
+import { IGameSettings } from "./types";
+
+export enum GameModes {
+  EASY = "easy",
+  MEDIUM = "medium",
+  HARD = "hard",
+}
+
+export const GAME_SETTINGS: Record<GameModes, IGameSettings> = {
+  [GameModes.EASY]: {
+    boardSize: 5,
+    pathSize: 4,
+  },
+  [GameModes.MEDIUM]: {
+    boardSize: 7,
+    pathSize: 8,
+  },
+  [GameModes.HARD]: {
+    boardSize: 9,
+    pathSize: 16,
+  },
+};
+
 export enum ShapeType {
   Circle = "circle",
   Square = "square",

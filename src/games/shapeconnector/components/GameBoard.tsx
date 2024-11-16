@@ -7,21 +7,21 @@ import { MotiPressable } from 'moti/interactions'
 import { StarIcon, XMarkIcon } from "react-native-heroicons/solid";
 
 import { Shape } from './Shape';
-import { IGame, INode } from '../types';
+import { IGame, IGameSettings, INode } from '../types';
 import { NodeState, UI_COLORS } from '../constants';
 import * as gameUtils from '../utils';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 
-export type GameBoardProps = {};
+export interface GameBoardProps {
+  settings: IGameSettings;
+}
 
 
 export function GameBoard(props: GameBoardProps) {
-  const BOARD_SIZE = 8;
-  const PATH_SIZE = 2;
   const NODE_SIZE = 28;
   const NODE_PADDING = 16;
 
-  const [game, setGame] = useState<IGame>(() => gameUtils.generateGame(BOARD_SIZE, PATH_SIZE));
+  const [game, setGame] = useState<IGame>(() => gameUtils.generateGame(props.settings.boardSize, props.settings.pathSize));
   const [path, setPath] = useState<INode[]>([]);
 
   const [goodMoveSound] = useState<Audio.Sound>(new Audio.Sound());
@@ -85,7 +85,7 @@ export function GameBoard(props: GameBoardProps) {
 
   function handleReset() {
     setPath([]);
-    setGame(gameUtils.generateGame(BOARD_SIZE, PATH_SIZE));
+    setGame(gameUtils.generateGame(props.settings.boardSize, props.settings.pathSize));
   }
 
   function handleNodePress(node: INode) {
