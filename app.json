@@ -2,7 +2,7 @@
   "expo": {
     "owner": "thalida.com",
     "name": "Boxset Games",
-    "slug": "boxsetgames",
+    "slug": "boxset-games",
     "scheme": "boxsetgames",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -33,7 +33,7 @@
     },
     "extra": {
       "eas": {
-        "projectId": "f6c005f5-b2e5-433d-ad98-33259677d3b0"
+        "projectId": "793b61d5-fada-4623-85ec-ac27987bed3a"
       }
     },
     "runtimeVersion": {
