@@ -2,7 +2,6 @@ import { IGame, IGameMetadata } from "@/types";
 import { Play } from "./Play";
 
 const metadata: IGameMetadata =  {
-  key: "tictactoecubed",
   name: "TicTacToeCubed",
   description: "A 9x9 TicTacToe game",
   modes: {
@@ -32,6 +31,7 @@ const metadata: IGameMetadata =  {
 };
 
 const game: IGame = {
+  key: "tictactoecubed",
   metadata,
   Play,
 };

@@ -3,7 +3,6 @@ import { Play } from "./Play";
 import { GAME_SETTINGS, GameDifficulty } from "./core/constants";
 
 const metadata: IGameMetadata =  {
-  key: "shapeconnector",
   name: "Shape Connector",
   description: "Solve the puzzle by connecting the shapes",
   modes: {
@@ -33,6 +32,7 @@ const metadata: IGameMetadata =  {
 };
 
 const game: IGame = {
+  key: "shapeconnector",
   metadata,
   Play,
 };

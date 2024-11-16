@@ -1,10 +1,10 @@
 export interface IGame {
+  key: string;
   metadata: IGameMetadata;
   Play:  (props: IPlayComponentProps) => React.JSX.Element;
 }
 
 export interface IGameMetadata {
-  key: string;
   name: string;
   description: string;
   modes: {
