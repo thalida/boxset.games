@@ -9,13 +9,13 @@ export default function RootLayout() {
   return (
     <SafeAreaView style={{
       flex: 1,
-      backgroundColor: '#111',
+      backgroundColor: '#1B2036',
     }}>
 
       {AvailableGamesOrder.map((gameKey) => (
         <View>
-          <Text>{AvailableGames[gameKey].metadata.name}</Text>
-          <Text>{AvailableGames[gameKey].metadata.description}</Text>
+          <Text style={{ color: "#fff" }}>{AvailableGames[gameKey].metadata.name}</Text>
+          <Text style={{ color: "#fff" }}>{AvailableGames[gameKey].metadata.description}</Text>
         </View>
       ))}
 
