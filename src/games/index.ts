@@ -6,12 +6,7 @@ export default {
   TicTacToeCubed,
 }
 
-export const AvailableGames = {
-  [ShapeConnector.key]: ShapeConnector,
-  [TicTacToeCubed.key]: TicTacToeCubed,
-}
-
-export const AvailableGamesOrder = [
-  ShapeConnector.key,
-  TicTacToeCubed.key,
+export const AvailableGames = [
+  ShapeConnector,
+  TicTacToeCubed,
 ]
